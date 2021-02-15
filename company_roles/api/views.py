@@ -74,7 +74,7 @@ class UserListView(viewsets.ViewSet):
             }
             return Response(response, status.HTTP_403_FORBIDDEN)
         else:
-            users = AuthUser.objects.all()
+            users = User.objects.all()
             serializer = self.serializer_class(users, many=True)
             response = {
                 'success': True,
