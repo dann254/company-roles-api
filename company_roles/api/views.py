@@ -3,9 +3,16 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.shortcuts import get_object_or_404
 
 # import models and serializers
-from .serializers import RegistrationSerializer, LoginSerializer, UserListSerializer
+from .serializers import (
+    RegistrationSerializer,
+    LoginSerializer,
+    UserListSerializer,
+    UserInfoSerializer,
+    RoleUpdateSerializer
+)
 from .models import User
 
 
@@ -61,12 +68,13 @@ class LoginView(viewsets.ViewSet):
 class UserListView(viewsets.ViewSet):
     serializer_class = UserListSerializer
     permission_classes = (IsAuthenticated,)
+    lookup_field = 'uid'
 
     def list(self, request):
-        user = request.user
+        current_user = request.user
 
         # only admins can view userlists
-        if user.role != 1:
+        if current_user.role != 1:
             response = {
                 'success': False,
                 'status_code': status.HTTP_403_FORBIDDEN,
@@ -75,7 +83,7 @@ class UserListView(viewsets.ViewSet):
             return Response(response, status.HTTP_403_FORBIDDEN)
         else:
             users = User.objects.all()
-            serializer = self.serializer_class(users, many=True)
+            serializer = self.serializer_class(users, many=True, context={'request': request})
             response = {
                 'success': True,
                 'status_code': status.HTTP_200_OK,
@@ -83,4 +91,65 @@ class UserListView(viewsets.ViewSet):
                 'users': serializer.data
 
             }
+            return Response(response, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, uid=None):
+        current_user = request.user
+
+        # only admins can view user info
+        if current_user.role != 1:
+            response = {
+                'success': False,
+                'status_code': status.HTTP_403_FORBIDDEN,
+                'message': 'You dont have enough permissions to perform this action'
+            }
+            return Response(response, status.HTTP_403_FORBIDDEN)
+
+        users = User.objects.all()
+        user = get_object_or_404(users, uid=uid)
+        serializer = UserInfoSerializer(user,  context={'request': request})
+        return Response(serializer.data)
+
+
+    def update(self, request, uid=None):
+        current_user = request.user
+
+        # only admins can view user info
+        if current_user.role != 1:
+            response = {
+                'success': False,
+                'status_code': status.HTTP_403_FORBIDDEN,
+                'message': 'You dont have enough permissions to perform this action'
+            }
+            return Response(response, status.HTTP_403_FORBIDDEN)
+
+
+        users = User.objects.all()
+        user = get_object_or_404(users, uid=uid)
+
+        if user.role == 1:
+            response = {
+                'success': False,
+                'status_code': status.HTTP_403_FORBIDDEN,
+                'message': 'User is admin, role cannot be changed at the moment'
+            }
+            return Response(response, status.HTTP_403_FORBIDDEN)
+
+        serializer = RoleUpdateSerializer(user, data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
+
+        users = User.objects.all()
+        user = get_object_or_404(users, uid=uid)
+        user_serializer = UserInfoSerializer(user,  context={'request': request})
+
+        if valid:
+            serializer.save()
+
+            response = {
+                'success': True,
+                'statusCode': status.HTTP_200_OK,
+                'message': 'User role updated',
+                'updatedUser': user_serializer.data
+            }
+
             return Response(response, status=status.HTTP_200_OK)

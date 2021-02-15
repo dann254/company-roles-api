@@ -1,6 +1,7 @@
 
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.reverse import reverse_lazy
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from .models import User
@@ -53,6 +54,19 @@ class LoginSerializer(serializers.Serializer):
 
 
 class UserListSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
+    def get_url(self, obj):
+        return reverse_lazy("users-detail", request=self.context['request'], kwargs={'uid':obj.uid})
+    class Meta:
+        model = User
+        fields = (
+            'uid',
+            'email',
+            'role',
+            'url'
+        )
+
+class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
@@ -60,3 +74,16 @@ class UserListSerializer(serializers.ModelSerializer):
             'email',
             'role'
         )
+
+class RoleUpdateSerializer(serializers.ModelSerializer):
+    role = serializers.IntegerField(max_value=3, min_value=2)
+    class Meta:
+        model = User
+        fields = (
+            'role',
+        )
+
+    def update(self, instance, validated_data):
+        instance.role = validated_data.get('role', instance.role)
+        instance.save()
+        return instance
