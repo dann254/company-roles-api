@@ -1,6 +1,8 @@
 
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import update_last_login
 from .models import User
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -46,7 +48,7 @@ class LoginSerializer(serializers.Serializer):
             }
 
             return validation
-        except AuthUser.DoesNotExist:
+        except User.DoesNotExist:
             raise serializers.ValidationError("Invalid email or password")
 
 
