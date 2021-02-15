@@ -35,7 +35,7 @@ if os.environ.get("CURRENT_ENV") == 'development' or os.environ.get("CURRENT_ENV
 else:
     DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', "localhost"]
+ALLOWED_HOSTS = ['company-roles-api.herokuapp.com', '127.0.0.1', "localhost"]
 
 AUTH_USER_MODEL = 'api.User'
 
