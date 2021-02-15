@@ -1,6 +1,6 @@
 
 from rest_framework import status
-from rest_framework.views import APIView
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
@@ -9,11 +9,11 @@ from .serializers import RegistrationSerializer, LoginSerializer, UserListSerial
 from .models import User
 
 
-class RegistrationView(APIView):
-    serializer_class = UserRegistrationSerializer
+class RegistrationView(viewsets.ViewSet):
+    serializer_class = RegistrationSerializer
     permission_classes = (AllowAny, )
 
-    def post(self, request):
+    def create(self, request):
         serializer = self.serializer_class(data=request.data)
         valid = serializer.is_valid(raise_exception=True)
 
@@ -32,11 +32,11 @@ class RegistrationView(APIView):
 
 
 
-class LoginView(APIView):
-    serializer_class = UserLoginSerializer
+class LoginView(viewsets.ViewSet):
+    serializer_class = LoginSerializer
     permission_classes = (AllowAny, )
 
-    def post(self, request):
+    def create(self, request):
         serializer = self.serializer_class(data=request.data)
         valid = serializer.is_valid(raise_exception=True)
 
@@ -58,11 +58,11 @@ class LoginView(APIView):
             return Response(response, status=status_code)
 
 
-class UserListView(APIView):
+class UserListView(viewsets.ViewSet):
     serializer_class = UserListSerializer
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
+    def list(self, request):
         user = request.user
 
         # only admins can view userlists
