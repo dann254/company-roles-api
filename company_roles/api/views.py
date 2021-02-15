@@ -138,12 +138,12 @@ class UserListView(viewsets.ViewSet):
         serializer = RoleUpdateSerializer(user, data=request.data)
         valid = serializer.is_valid(raise_exception=True)
 
-        users = User.objects.all()
-        user = get_object_or_404(users, uid=uid)
-        user_serializer = UserInfoSerializer(user,  context={'request': request})
-
         if valid:
             serializer.save()
+
+            users = User.objects.all()
+            user = get_object_or_404(users, uid=uid)
+            user_serializer = UserInfoSerializer(user,  context={'request': request})
 
             response = {
                 'success': True,

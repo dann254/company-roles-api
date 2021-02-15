@@ -1,4 +1,4 @@
-
+[![Build Status](https://travis-ci.com/dann254/company-roles-api.svg?branch=master)](https://travis-ci.com/dann254/company-roles-api)
 
 
 # COMPANY ROLES - [API]
