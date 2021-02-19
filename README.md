@@ -8,6 +8,11 @@ authenticate users based on role
 ### Relevant Links
 - [staging](https://company-roles-api.herokuapp.com/)
 
+### Relevant information
+- ** admins ** can only be created through the console with the following command.
+```bash
+python manage.py createsuperuser --email email@example.com
+```
 
 ## How to set up
 - Make sure you have **python3** installed.

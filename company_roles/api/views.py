@@ -32,7 +32,9 @@ class RegistrationView(viewsets.ViewSet):
                 'success': True,
                 'statusCode': status_code,
                 'message': 'User registration successful!',
-                'user': serializer.data
+                'user': {
+                    'email': serializer.data['email']
+                }
             }
 
             return Response(response, status=status_code)
